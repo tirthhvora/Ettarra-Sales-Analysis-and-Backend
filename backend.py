@@ -51,10 +51,33 @@ def get_top_item_quantity():
 
 @app.route('/rev-by-order-type', methods=['GET'])
 def get_rev_by_order_type():
-    order_type_revenue_analysis = sales.groupby('Order Type')['Final Total'].sum().sort_values(ascending=False)
-    order_type_by_rev_list = [{'category': item, 'sales': sales} for item, sales in zip(order_type_revenue_analysis.index, order_type_revenue_analysis.values)]
+    order_type_revenue_analysis = sales.groupby('Area')['Final Total'].sum().sort_values(ascending=False)
+    order_type_by_rev_list = [{'Area': item, 'sales': sales} for item, sales in zip(order_type_revenue_analysis.index, order_type_revenue_analysis.values)]
     order_type_by_rev_json = jsonify(order_type_by_rev_list).response[0]
     return order_type_by_rev_json
+
+@app.route('/avg-value-order-type', methods=['GET'])
+def avg_value_by_order_type():
+    order_type_avg_transaction = sales.groupby('Area')['Final Total'].mean()
+    order_type_by_avg_trans_list = [{'Area': item, 'avg_value': sales} for item, sales in zip(order_type_avg_transaction.index, order_type_avg_transaction.values)]
+    order_type_by_avg_trans_json = jsonify(order_type_by_avg_trans_list).response[0]
+    return order_type_by_avg_trans_json
+
+@app.route('/customer-segmentation-most-popular-items', methods=['GET'])
+def customer_segmentation_most_popular_items():
+    customer_segments = sales.groupby('Phone').agg({
+        'Final Total': 'sum',
+        'Qty.': 'sum',
+        'Category': lambda x: x.mode().iat[0],
+    }).reset_index()
+    popular_items = customer_segments.groupby('Category').size().sort_values(ascending=False)
+    popular_items_list = [{'category': item, 'count': int(sales)} for item, sales in zip(popular_items.index, popular_items.values)]
+    popular_items_json = jsonify(popular_items_list).response[0]
+    return popular_items_json
+
+
+   
+
 
 
 
@@ -62,4 +85,4 @@ def get_rev_by_order_type():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
