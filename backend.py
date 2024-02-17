@@ -105,6 +105,14 @@ def hourly_transactions():
     return json_data
 
 
+@app.route('/repeat-purchase-rate', methods=['GET'])
+def repeat_purchase_rate():
+    repeat_purchase_rate = sales.groupby('Phone')['Date'].nunique().value_counts(normalize=True)
+    ax_repeat_purchase = (repeat_purchase_rate.sort_index())*100
+    repeat_purchase_json = pd.DataFrame({'visit freq': ax_repeat_purchase.index, 'Percentage': ax_repeat_purchase.values})
+    json_data = repeat_purchase_json.to_json(orient='records')
+    return json_data
+
 
      
 
