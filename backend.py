@@ -49,7 +49,12 @@ def get_top_item_quantity():
     top_item_quan_json = jsonify(top_item_quan_l).response[0]
     return top_item_quan_json
 
-
+@app.route('/rev-by-order-type', methods=['GET'])
+def get_rev_by_order_type():
+    order_type_revenue_analysis = sales.groupby('Order Type')['Final Total'].sum().sort_values(ascending=False)
+    order_type_by_rev_list = [{'category': item, 'sales': sales} for item, sales in zip(order_type_revenue_analysis.index, order_type_revenue_analysis.values)]
+    order_type_by_rev_json = jsonify(order_type_by_rev_list).response[0]
+    return order_type_by_rev_json
 
 
 
