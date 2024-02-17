@@ -76,7 +76,16 @@ def customer_segmentation_most_popular_items():
     return popular_items_json
 
 
-   
+
+@app.route('/daily-transactions', methods=['GET'])
+def daily_transactions():
+    sales['Date'] = pd.to_datetime(sales['Date'])
+    daily_transactions = sales.groupby(sales['Date'].dt.date)['Invoice No.'].nunique()
+    df_daily_transactions = pd.DataFrame({'Date': daily_transactions.index, 'Count': daily_transactions.values})
+    json_data = df_daily_transactions.to_json(orient='records', date_format='iso')
+    for day_number in range(1, 32):
+        json_data = json_data.replace(f'"2024-01-{day_number:02}T00:00:00.000"', str(day_number))
+    return json_data
 
 
 
