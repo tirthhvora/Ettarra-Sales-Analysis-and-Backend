@@ -87,6 +87,22 @@ def daily_transactions():
         json_data = json_data.replace(f'"2024-01-{day_number:02}T00:00:00.000"', str(day_number))
     return json_data
 
+@app.route('/hourly-transactions', methods=['GET'])
+def hourly_transactions():
+    sales['Timestamp'] = pd.to_datetime(sales['Timestamp'])
+    sales['HourOfDay'] = sales['Timestamp'].dt.hour
+
+    hourly_sales = sales.groupby('HourOfDay')['Final Total'].sum()
+
+    # Convert the hour index to AM/PM format
+    hourly_sales.index = [f"{hour % 12} {'AM' if hour < 12 else 'PM'}" for hour in hourly_sales.index]
+
+    # Create a DataFrame with 'Hour' and 'Total Sales' columns
+    hourly_sales_df = pd.DataFrame({'Hour': hourly_sales.index, 'Total Sales': hourly_sales.values})
+
+    # Convert the DataFrame to JSON using to_json
+    json_data = hourly_sales_df.to_json(orient='records')
+    return json_data
 
 
 
