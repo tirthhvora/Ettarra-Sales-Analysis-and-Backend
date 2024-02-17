@@ -41,8 +41,16 @@ def get_revenue_by_cat():
     cat_by_rev_json = jsonify(cat_by_rev_list).response[0]
     return cat_by_rev_json
 
+@app.route('/top-item-quantity', methods=['GET'])    
+def get_top_item_quantity():
+    item_quantity = sales.groupby('Item Name')['Qty.'].sum().sort_values(ascending=False)
+    top_items_quantity = item_quantity.head(10)
+    top_item_quan_l = [{'item_name': item, 'quantity': int(sales)} for item, sales in zip(top_items_quantity.index, top_items_quantity.values)]
+    top_item_quan_json = jsonify(top_item_quan_l).response[0]
+    return top_item_quan_json
 
-    
+
+
 
 
      
